@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matchez — Encuentra tu próximo partido</title>
+<meta name="description" content="La app para encontrar jugadores de pádel, tenis y frontón cerca de ti. Filtra por categoría, únete a partidas y conoce gente nueva.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green: #00E676;
+    --green-dim: #00C853;
+    --black: #080808;
+    --surface: #111111;
+    --surface2: #181818;
+    --border: #222222;
+    --text: #F0F0F0;
+    --muted: #888888;
+    --font-display: 'Syne', sans-serif;
+    --font-body: 'Inter', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 40px;
+    background: rgba(8,8,8,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .nav-logo .dot { color: var(--green); }
+
+  .nav-ball {
+    width: 32px;
+    height: 32px;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--text); }
+
+  .btn-primary {
+    background: var(--green);
+    color: var(--black);
+    border: none;
+    border-radius: 10px;
+    padding: 11px 24px;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .btn-primary:hover { background: #00FF85; transform: translateY(-1px); }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--text);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 24px;
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .btn-outline:hover { border-color: var(--green); color: var(--green); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 120px 24px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(0,230,118,0.08) 0%, transparent 70%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -55%);
+    pointer-events: none;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,230,118,0.08);
+    border: 1px solid rgba(0,230,118,0.2);
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 13px;
+    color: var(--green);
+    font-weight: 500;
+    margin-bottom: 32px;
+    letter-spacing: 0.3px;
+  }
+
+  .hero-badge .pulse {
+    width: 7px;
+    height: 7px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+
+  .hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(48px, 8vw, 96px);
+    font-weight: 800;
+    letter-spacing: -3px;
+    line-height: 0.95;
+    margin-bottom: 24px;
+    position: relative;
+  }
+
+  .hero h1 .green { color: var(--green); }
+
+  .hero p {
+    font-size: clamp(16px, 2.5vw, 20px);
+    color: var(--muted);
+    max-width: 520px;
+    margin: 0 auto 40px;
+    line-height: 1.7;
+  }
+
+  .hero-btns {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 64px;
+  }
+
+  .hero-btns .btn-primary { padding: 14px 32px; font-size: 15px; }
+  .hero-btns .btn-outline { padding: 14px 32px; font-size: 15px; }
+
+  /* PHONE MOCKUP */
+  .phone-mockup {
+    position: relative;
+    width: 280px;
+    margin: 0 auto;
+  }
+
+  .phone-frame {
+    background: var(--surface);
+    border-radius: 36px;
+    border: 2px solid var(--border);
+    overflow: hidden;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px #1a1a1a;
+    padding: 0;
+  }
+
+  .phone-screen {
+    background: var(--black);
+    padding: 16px;
+  }
+
+  .phone-notch {
+    width: 80px;
+    height: 22px;
+    background: var(--black);
+    border-radius: 0 0 14px 14px;
+    margin: 0 auto 12px;
+  }
+
+  .phone-status {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--muted);
+    margin-bottom: 16px;
+    padding: 0 2px;
+  }
+
+  .phone-title {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+
+  .phone-subtitle {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+
+  .phone-filters {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+
+  .phone-chip {
+    background: var(--green);
+    color: var(--black);
+    border-radius: 12px;
+    padding: 3px 9px;
+    font-size: 10px;
+    font-weight: 600;
+  }
+
+  .phone-chip.inactive {
+    background: var(--surface2);
+    color: var(--muted);
+  }
+
+  .phone-card {
+    background: var(--surface2);
+    border-radius: 12px;
+    padding: 10px;
+    margin-bottom: 8px;
+    border: 1px solid var(--border);
+  }
+
+  .phone-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+
+  .phone-card-club {
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .phone-card-cat {
+    background: var(--green);
+    color: var(--black);
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 8px;
+  }
+
+  .phone-card-info {
+    font-size: 10px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .phone-card-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .phone-spots {
+    font-size: 10px;
+    color: var(--green);
+    font-weight: 600;
+  }
+
+  .phone-join {
+    background: var(--green);
+    color: var(--black);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 8px;
+  }
+
+  .phone-nav {
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0 6px;
+    border-top: 1px solid var(--border);
+    margin-top: 8px;
+  }
+
+  .phone-nav-item {
+    font-size: 9px;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  .phone-nav-item.active { color: var(--green); }
+  .phone-nav-icon { font-size: 16px; margin-bottom: 2px; }
+
+  /* STATS */
+  .stats {
+    display: flex;
+    justify-content: center;
+    gap: 48px;
+    padding: 48px 24px;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-number {
+    font-family: var(--font-display);
+    font-size: 40px;
+    font-weight: 800;
+    color: var(--green);
+    letter-spacing: -2px;
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* FEATURES */
+  .features {
+    padding: 96px 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 16px;
+    font-weight: 600;
+  }
+
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 800;
+    letter-spacing: -2px;
+    line-height: 1.05;
+    margin-bottom: 16px;
+  }
+
+  .section-sub {
+    font-size: 17px;
+    color: var(--muted);
+    max-width: 480px;
+    line-height: 1.7;
+    margin-bottom: 56px;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+  }
+
+  .feature-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .feature-card:hover {
+    border-color: rgba(0,230,118,0.3);
+    transform: translateY(-2px);
+  }
+
+  .feature-icon {
+    font-size: 32px;
+    margin-bottom: 16px;
+  }
+
+  .feature-title {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    letter-spacing: -0.3px;
+  }
+
+  .feature-desc {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  /* SPORTS */
+  .sports {
+    padding: 80px 24px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sports-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .sports-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 48px;
+  }
+
+  .sport-card {
+    background: var(--black);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 36px 24px;
+    transition: border-color 0.2s;
+  }
+
+  .sport-card:hover { border-color: var(--green); }
+
+  .sport-emoji { font-size: 48px; margin-bottom: 16px; }
+
+  .sport-name {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+
+  .sport-desc { font-size: 14px; color: var(--muted); }
+
+  /* HOW IT WORKS */
+  .how {
+    padding: 96px 24px;
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 32px;
+    margin-top: 56px;
+  }
+
+  .step {
+    position: relative;
+  }
+
+  .step-num {
+    width: 48px;
+    height: 48px;
+    background: rgba(0,230,118,0.1);
+    border: 1.5px solid rgba(0,230,118,0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--green);
+    margin: 0 auto 16px;
+  }
+
+  .step-title {
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+
+  .step-desc { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+  /* WAITLIST */
+  .waitlist {
+    padding: 96px 24px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+  }
+
+  .waitlist-inner {
+    max-width: 560px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .waitlist h2 {
+    font-family: var(--font-display);
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 800;
+    letter-spacing: -2px;
+    margin-bottom: 16px;
+  }
+
+  .waitlist h2 .green { color: var(--green); }
+
+  .waitlist p {
+    color: var(--muted);
+    font-size: 16px;
+    margin-bottom: 40px;
+    line-height: 1.7;
+  }
+
+  .form-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .form-input {
+    flex: 1;
+    background: var(--black);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .form-input:focus { border-color: var(--green); }
+  .form-input::placeholder { color: var(--muted); }
+
+  .form-select {
+    width: 100%;
+    background: var(--black);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 15px;
+    outline: none;
+    margin-bottom: 16px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    appearance: none;
+  }
+
+  .form-select:focus { border-color: var(--green); }
+
+  .form-submit {
+    width: 100%;
+    background: var(--green);
+    color: var(--black);
+    border: none;
+    border-radius: 12px;
+    padding: 16px;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    margin-top: 4px;
+  }
+
+  .form-submit:hover { background: #00FF85; transform: translateY(-1px); }
+
+  .form-note {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 12px;
+  }
+
+  .success-msg {
+    display: none;
+    background: rgba(0,230,118,0.1);
+    border: 1px solid rgba(0,230,118,0.3);
+    border-radius: 12px;
+    padding: 20px;
+    color: var(--green);
+    font-weight: 500;
+    margin-top: 16px;
+  }
+
+  /* FOOTER */
+  footer {
+    padding: 40px 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: gap;
+    max-width: 1100px;
+    margin: 0 auto;
+    gap: 16px;
+  }
+
+  .footer-logo {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text);
+  }
+
+  .footer-logo span { color: var(--green); }
+
+  .footer-links {
+    display: flex;
+    gap: 24px;
+    list-style: none;
+    flex-wrap: wrap;
+  }
+
+  .footer-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+    transition: color 0.2s;
+  }
+
+  .footer-links a:hover { color: var(--text); }
+
+  .footer-copy {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    nav { padding: 16px 20px; }
+    .nav-links { display: none; }
+    .sports-grid { grid-template-columns: 1fr; }
+    .form-group { flex-direction: column; }
+    footer { flex-direction: column; text-align: center; }
+    .stats { gap: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <svg class="nav-ball" viewBox="0 0 100 100" fill="none">
+      <!-- Outer green circle -->
+      <circle cx="50" cy="50" r="48" fill="#00E676"/>
+      <!-- Inner black ball -->
+      <circle cx="50" cy="50" r="30" fill="#080808"/>
+      <!-- Left seam curve -->
+      <path d="M32 28 Q50 50 32 72" stroke="#00E676" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <!-- Right seam curve -->
+      <path d="M68 28 Q50 50 68 72" stroke="#00E676" stroke-width="5" fill="none" stroke-linecap="round"/>
+    </svg>
+    <span style="color:#F5F5F5;letter-spacing:-1px">MATCHEZ</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#features">Funciones</a></li>
+    <li><a href="#deportes">Deportes</a></li>
+    <li><a href="#como-funciona">Cómo funciona</a></li>
+    <li><a href="#waitlist" class="btn-primary">Únete a la lista</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">
+    <div class="pulse"></div>
+    Próximamente en App Store y Google Play
+  </div>
+
+  <h1>Encuentra tu<br><span class="green">próximo partido</span></h1>
+
+  <p>La app que conecta jugadores de pádel, tenis y frontón. Filtra por categoría, únete a partidas cerca de ti y conoce nuevos compañeros de juego.</p>
+
+  <div class="hero-btns">
+    <a href="#waitlist" class="btn-primary">Apuntarme a la lista de espera</a>
+    <a href="#features" class="btn-outline">Ver funciones</a>
+  </div>
+
+  <!-- Phone mockup -->
+  <div class="phone-mockup">
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="phone-status"><span>9:41</span><span>●●●</span></div>
+        <div class="phone-title">Descubrir</div>
+        <div class="phone-subtitle">9 partidos abiertos cerca</div>
+        <div class="phone-filters">
+          <div class="phone-chip">Todas</div>
+          <div class="phone-chip inactive">5ª</div>
+          <div class="phone-chip inactive">4ª</div>
+          <div class="phone-chip inactive">Mixto</div>
+        </div>
+        <div class="phone-card">
+          <div class="phone-card-top">
+            <div class="phone-card-club">Club Pádel Valencia</div>
+            <div class="phone-card-cat">5ª</div>
+          </div>
+          <div class="phone-card-info">📍 Valencia · Hoy 19:00 · Masculino</div>
+          <div class="phone-card-bottom">
+            <div class="phone-spots">2 plazas libres</div>
+            <div class="phone-join">Unirme</div>
+          </div>
+        </div>
+        <div class="phone-card">
+          <div class="phone-card-top">
+            <div class="phone-card-club">Club Tenis Barcelona</div>
+            <div class="phone-card-cat">3ª</div>
+          </div>
+          <div class="phone-card-info">📍 Barcelona · Mañana 10:00 · Mixto</div>
+          <div class="phone-card-bottom">
+            <div class="phone-spots">1 plaza libre</div>
+            <div class="phone-join">Unirme</div>
+          </div>
+        </div>
+        <div class="phone-nav">
+          <div class="phone-nav-item active"><div class="phone-nav-icon">🔍</div>Descubrir</div>
+          <div class="phone-nav-item"><div class="phone-nav-icon">➕</div>Crear</div>
+          <div class="phone-nav-item"><div class="phone-nav-icon">💬</div>Chats</div>
+          <div class="phone-nav-item"><div class="phone-nav-icon">👤</div>Perfil</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat">
+    <div class="stat-number">6</div>
+    <div class="stat-label">Categorías federativas</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number">3</div>
+    <div class="stat-label">Deportes disponibles</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number">0€</div>
+    <div class="stat-label">Coste para jugadores</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number">∞</div>
+    <div class="stat-label">Partidos posibles</div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="section-label">Funcionalidades</div>
+  <h2 class="section-title">Todo lo que necesitas<br>para jugar más</h2>
+  <p class="section-sub">Diseñado para el jugador amateur español. Sin complicaciones, sin registro largo, sin perder tiempo.</p>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🎯</div>
+      <div class="feature-title">Filtra por tu nivel</div>
+      <div class="feature-desc">Categorías federativas reales: desde 6ª hasta 1ª. Solo verás partidas de tu nivel, sin sorpresas.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📍</div>
+      <div class="feature-title">Cerca de ti</div>
+      <div class="feature-desc">Partidos y clubes ordenados por distancia. Encuentra juego en tu barrio o ciudad en segundos.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">💬</div>
+      <div class="feature-title">Chat de partida</div>
+      <div class="feature-desc">Cada partida tiene su propio chat grupal. Coordina con los demás jugadores antes de llegar a pista.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🏟️</div>
+      <div class="feature-title">Clubes y comunidades</div>
+      <div class="feature-desc">Los clubes publican sus pistas disponibles y crean comunidad con sus socios. Síguelos y no te pierdas nada.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⚧</div>
+      <div class="feature-title">Masculino, Femenino o Mixto</div>
+      <div class="feature-desc">Filtra el tipo de partida que buscas. Tú decides con quién quieres jugar.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">✉️</div>
+      <div class="feature-title">Invita a tus amigos</div>
+      <div class="feature-desc">¿Ya tienes pareja? Reserva dos plazas a la vez y busca solo los contrincantes que faltan.</div>
+    </div>
+  </div>
+</section>
+
+<!-- DEPORTES -->
+<section class="sports" id="deportes">
+  <div class="sports-inner">
+    <div class="section-label">Deportes</div>
+    <h2 class="section-title">Pádel, tenis y frontón</h2>
+    <p class="section-sub" style="margin: 0 auto;">Una sola app para todos los deportes de raqueta. Elige el tuyo y encuentra partida.</p>
+    <div class="sports-grid">
+      <div class="sport-card">
+        <div class="sport-emoji">🎾</div>
+        <div class="sport-name">Pádel</div>
+        <div class="sport-desc">Dobles. Categorías federativas. Reserva pista directamente desde la app.</div>
+      </div>
+      <div class="sport-card">
+        <div class="sport-emoji">🎾</div>
+        <div class="sport-name">Tenis</div>
+        <div class="sport-desc">Individual y dobles. Encuentra jugadores de tu nivel en clubes cercanos.</div>
+      </div>
+      <div class="sport-card">
+        <div class="sport-emoji">🏃</div>
+        <div class="sport-name">Frontón</div>
+        <div class="sport-desc">Pistas públicas gratuitas. Queda con otros jugadores y a jugar, sin coste.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="como-funciona">
+  <div class="section-label">Cómo funciona</div>
+  <h2 class="section-title">En tres pasos</h2>
+  <p class="section-sub" style="margin: 0 auto;">Desde que te descargas la app hasta que estás en pista, menos de 2 minutos.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-title">Crea tu perfil</div>
+      <div class="step-desc">Pon tu nombre, nivel y zona. Listo en menos de un minuto con tu cuenta de Google.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-title">Encuentra partida</div>
+      <div class="step-desc">Filtra por categoría, tipo de juego y distancia. Ve partidas abiertas cerca de ti.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-title">Únete y juega</div>
+      <div class="step-desc">Un toque para apuntarte. Chatea con los jugadores y a pista.</div>
+    </div>
+  </div>
+</section>
+
+<!-- WAITLIST -->
+<section class="waitlist" id="waitlist">
+  <div class="waitlist-inner">
+    <div class="section-label">Lista de espera</div>
+    <h2>Sé el primero<br>en <span class="green">jugar</span></h2>
+    <p>Matchez llega pronto a App Store y Google Play. Apúntate ahora y te avisamos cuando esté disponible.</p>
+
+    <form id="waitlistForm" onsubmit="handleSubmit(event)">
+      <div class="form-group">
+        <input type="text" class="form-input" placeholder="Tu nombre" id="nameInput" required>
+        <input type="email" class="form-input" placeholder="tu@email.com" id="emailInput" required>
+      </div>
+      <select class="form-select" id="sportSelect">
+        <option value="">¿Qué deporte juegas principalmente?</option>
+        <option value="padel">Pádel</option>
+        <option value="tenis">Tenis</option>
+        <option value="fronton">Frontón</option>
+        <option value="varios">Varios deportes</option>
+      </select>
+      <select class="form-select" id="levelSelect">
+        <option value="">¿Cuál es tu categoría?</option>
+        <option value="6">6ª categoría (iniciación)</option>
+        <option value="5">5ª categoría</option>
+        <option value="4">4ª categoría</option>
+        <option value="3">3ª categoría</option>
+        <option value="2">2ª categoría</option>
+        <option value="1">1ª categoría</option>
+      </select>
+      <button type="submit" class="form-submit">Apuntarme a la lista de espera →</button>
+      <p class="form-note">Sin spam. Solo te avisamos cuando la app esté disponible.</p>
+    </form>
+
+    <div class="success-msg" id="successMsg">
+      🎾 ¡Apuntado! Te avisaremos en cuanto Matchez esté disponible. ¡Nos vemos en pista!
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Match<span>ez</span></div>
+  <ul class="footer-links">
+    <li><a href="#">Política de privacidad</a></li>
+    <li><a href="#">Términos de uso</a></li>
+    <li><a href="mailto:matchez.es@gmail.com">Contacto</a></li>
+    <li><a href="https://instagram.com" target="_blank">Instagram</a></li>
+    <li><a href="https://tiktok.com" target="_blank">TikTok</a></li>
+  </ul>
+  <p class="footer-copy">© 2026 Matchez. Todos los derechos reservados.</p>
+</footer>
+
+<script>
+function handleSubmit(e) {
+  e.preventDefault();
+  const name = document.getElementById('nameInput').value;
+  const email = document.getElementById('emailInput').value;
+  
+  if (!name || !email) return;
+  
+  // Hide form, show success
+  document.getElementById('waitlistForm').style.display = 'none';
+  document.getElementById('successMsg').style.display = 'block';
+  
+  // Here you would normally send to a backend
+  console.log('Waitlist signup:', { name, email });
+}
+
+// Smooth scroll for nav links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+</script>
+
+</body>
+</html>
